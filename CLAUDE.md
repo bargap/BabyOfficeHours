@@ -8,6 +8,136 @@ This is a native **iOS application** built with **Swift 6.1+** and **SwiftUI**. 
 - **Platform:** iOS (Simulator and Device)
 - **Accessibility:** Full accessibility support using SwiftUI's accessibility modifiers
 
+## Git Workflow - Claude is in Charge
+
+**CRITICAL: Claude Code manages all branching and git workflow. Always follow these rules:**
+
+### Feature Development Workflow
+
+1. **Create feature branch** for all new work:
+   ```bash
+   git checkout -b feature/descriptive-name
+   ```
+   Examples: `feature/baby-profile`, `feature/availability-toggle`, `feature/firebase-integration`
+
+2. **Commit frequently** with clear messages following the format:
+   ```
+   Brief description (imperative mood)
+
+   - Bullet points for details
+   - What changed and why
+
+   🤖 Generated with Claude Code (https://claude.com/claude-code)
+
+   Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+   ```
+
+3. **Push feature branch** to remote:
+   ```bash
+   git push -u origin feature/descriptive-name
+   ```
+
+4. **Merge to main** when feature is complete and tested:
+   ```bash
+   git checkout main
+   git merge --no-ff feature/descriptive-name
+   git push origin main
+   ```
+
+5. **Delete feature branch** after successful merge:
+   ```bash
+   git branch -d feature/descriptive-name
+   git push origin --delete feature/descriptive-name
+   ```
+
+### Branch Naming Conventions
+
+- `feature/` - New features (e.g., `feature/push-notifications`)
+- `fix/` - Bug fixes (e.g., `fix/toggle-state-sync`)
+- `refactor/` - Code refactoring (e.g., `refactor/firebase-service`)
+- `docs/` - Documentation only (e.g., `docs/api-documentation`)
+- `test/` - Adding/updating tests (e.g., `test/baby-profile-tests`)
+
+### Main Branch Protection
+
+- **Never commit directly to main** - always use feature branches
+- **Main branch is production-ready** - only merge tested, working code
+- **Use `--no-ff` flag** when merging to preserve feature branch history
+- **Squash commits** only for small fixes, preserve history for features
+
+### When to Create a Branch
+
+**Always create a branch for:**
+- New features (any user story from PRD)
+- Bug fixes
+- Refactoring existing code
+- Experimental work
+
+**Direct to main only for:**
+- Documentation updates (README, CLAUDE.md, etc.)
+- Minor typo fixes
+- .gitignore updates
+- Configuration file tweaks (if absolutely necessary)
+
+### Pull Request Workflow (Optional)
+
+If working with others or want review process:
+```bash
+# After pushing feature branch
+gh pr create --title "Add baby profile feature" --body "Implements US-1: Baby profile creation"
+
+# After review/approval
+gh pr merge --merge
+```
+
+### Example Complete Workflow
+
+```bash
+# Start new feature
+git checkout -b feature/availability-toggle
+# ... make changes, commit frequently ...
+git add .
+git commit -m "Implement availability toggle
+
+- Add toggle UI component
+- Add state management with @Observable
+- Add Firebase sync logic
+- Add unit tests
+
+🤖 Generated with Claude Code"
+
+# Push to remote
+git push -u origin feature/availability-toggle
+
+# When feature is done and tested
+git checkout main
+git pull origin main  # Get latest
+git merge --no-ff feature/availability-toggle
+git push origin main
+
+# Cleanup
+git branch -d feature/availability-toggle
+git push origin --delete feature/availability-toggle
+```
+
+### Recovery Commands (if needed)
+
+```bash
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Discard all local changes
+git reset --hard HEAD
+
+# Switch back to main
+git checkout main
+
+# See branch history
+git log --oneline --graph --all
+```
+
+**Remember:** Claude Code handles all git operations. User should never worry about branching strategy.
+
 ## Project Structure
 
 The project follows a **workspace + SPM package** architecture:
