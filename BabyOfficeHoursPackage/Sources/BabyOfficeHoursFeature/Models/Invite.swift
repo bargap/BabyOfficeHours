@@ -74,3 +74,64 @@ public final class Invite: Identifiable {
 // MARK: - Sendable Conformance
 
 extension Invite: @unchecked Sendable {}
+
+// MARK: - Firestore Conversion
+
+extension Invite {
+    /// Converts the invite to a Firestore-compatible dictionary
+    public func toFirestore() -> [String: Any] {
+        var data: [String: Any] = [
+            "babyId": babyId.uuidString,
+            "role": role.rawValue,
+            "createdBy": createdBy.uuidString,
+            "createdAt": createdAt,
+            "isRedeemed": isRedeemed
+        ]
+        if let expiresAt {
+            data["expiresAt"] = expiresAt
+        }
+        if let redeemedBy {
+            data["redeemedBy"] = redeemedBy.uuidString
+        }
+        if let redeemedAt {
+            data["redeemedAt"] = redeemedAt
+        }
+        return data
+    }
+
+    /// Creates an Invite from Firestore data
+    public static func fromFirestore(_ data: [String: Any], id: String) -> Invite? {
+        guard let uuid = UUID(uuidString: id),
+              let babyIdString = data["babyId"] as? String,
+              let babyId = UUID(uuidString: babyIdString),
+              let roleString = data["role"] as? String,
+              let role = InviteRole(rawValue: roleString),
+              let createdByString = data["createdBy"] as? String,
+              let createdBy = UUID(uuidString: createdByString) else {
+            return nil
+        }
+
+        let createdAt = (data["createdAt"] as? Date) ?? Date()
+        let expiresAt = data["expiresAt"] as? Date
+        let isRedeemed = data["isRedeemed"] as? Bool ?? false
+
+        var redeemedBy: UUID?
+        if let redeemedByString = data["redeemedBy"] as? String {
+            redeemedBy = UUID(uuidString: redeemedByString)
+        }
+
+        let redeemedAt = data["redeemedAt"] as? Date
+
+        return Invite(
+            id: uuid,
+            babyId: babyId,
+            role: role,
+            createdBy: createdBy,
+            createdAt: createdAt,
+            expiresAt: expiresAt,
+            isRedeemed: isRedeemed,
+            redeemedBy: redeemedBy,
+            redeemedAt: redeemedAt
+        )
+    }
+}

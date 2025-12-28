@@ -6,13 +6,23 @@ public struct ContentView: View {
 
     public var body: some View {
         Group {
-            if appState.hasCompletedOnboarding {
+            if appState.isLoading {
+                // Loading state while connecting to Firebase
+                VStack(spacing: 16) {
+                    ProgressView()
+                    Text("Connecting...")
+                        .foregroundStyle(.secondary)
+                }
+            } else if appState.hasCompletedOnboarding {
                 BabyListView()
             } else {
                 OnboardingView()
             }
         }
         .environment(appState)
+        .task {
+            await appState.initialize()
+        }
     }
 
     public init() {}
