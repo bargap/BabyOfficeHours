@@ -13,19 +13,46 @@ public final class AppState {
     /// All pending invites created by the current user
     public var pendingInvites: [Invite]
 
+    /// Registry of known users (for displaying names of co-parents/subscribers)
+    public var knownUsers: [UUID: User]
+
     /// Whether the user has completed onboarding
     public var hasCompletedOnboarding: Bool
+
+    /// Pending invite to join (from deep link)
+    public var pendingJoinInvite: Invite?
 
     public init(
         currentUser: User = User(),
         babies: [Baby] = [],
         pendingInvites: [Invite] = [],
-        hasCompletedOnboarding: Bool = false
+        knownUsers: [UUID: User] = [:],
+        hasCompletedOnboarding: Bool = false,
+        pendingJoinInvite: Invite? = nil
     ) {
         self.currentUser = currentUser
         self.babies = babies
         self.pendingInvites = pendingInvites
+        self.knownUsers = knownUsers
         self.hasCompletedOnboarding = hasCompletedOnboarding
+        self.pendingJoinInvite = pendingJoinInvite
+    }
+
+    /// Gets a known user by ID
+    public func user(for id: UUID) -> User? {
+        if id == currentUser.id { return currentUser }
+        return knownUsers[id]
+    }
+
+    /// Gets the display name for a user ID
+    public func displayName(for userId: UUID) -> String {
+        if userId == currentUser.id { return "You" }
+        return knownUsers[userId]?.displayName ?? "Unknown"
+    }
+
+    /// Registers a user in the known users registry
+    public func registerUser(_ user: User) {
+        knownUsers[user.id] = user
     }
 
     // MARK: - Baby Management
@@ -170,19 +197,54 @@ public final class AppState {
 
     // MARK: - Mock Data for Testing
 
+    private static let mockNames = ["Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Quinn", "Avery"]
+
     /// Simulates accepting a co-parent invite (for UI testing without Firebase)
     /// Creates a mock co-parent user and adds them to the baby
     public func simulateCoParentInviteAccepted(for baby: Baby) -> User {
-        let mockCoParent = User(id: UUID())
+        let mockName = Self.mockNames.randomElement() ?? "Partner"
+        let mockCoParent = User(id: UUID(), name: mockName)
         baby.addParent(mockCoParent.id)
+        registerUser(mockCoParent)
         return mockCoParent
     }
 
     /// Simulates accepting a subscriber invite (for UI testing without Firebase)
     /// Creates a mock subscriber user and adds them to the baby
     public func simulateSubscriberInviteAccepted(for baby: Baby) -> User {
-        let mockSubscriber = User(id: UUID())
+        let mockName = Self.mockNames.randomElement() ?? "Family Member"
+        let mockSubscriber = User(id: UUID(), name: mockName)
         baby.addSubscriber(mockSubscriber.id)
+        registerUser(mockSubscriber)
         return mockSubscriber
+    }
+
+    // MARK: - Join Flow
+
+    /// Joins a baby as a subscriber or co-parent via invite
+    /// - Parameters:
+    ///   - baby: The baby to join
+    ///   - role: The role to join as
+    ///   - userName: The name the user wants to be displayed as
+    public func joinBaby(_ baby: Baby, as role: InviteRole, userName: String) {
+        currentUser.name = userName
+
+        switch role {
+        case .parent:
+            baby.addParent(currentUser.id)
+        case .subscriber:
+            baby.addSubscriber(currentUser.id)
+        }
+
+        if !babies.contains(where: { $0.id == baby.id }) {
+            babies.append(baby)
+        }
+
+        if !currentUser.babies.contains(baby.id) {
+            currentUser.babies.append(baby.id)
+        }
+
+        hasCompletedOnboarding = true
+        pendingJoinInvite = nil
     }
 }
