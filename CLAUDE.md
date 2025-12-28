@@ -754,6 +754,18 @@ get_sim_app_path_name_ws({
 5. **UI automation**: Use describe_ui and automation tools for UI testing
 6. **Device testing**: Deploy to physical device when needed
 
+## Simulator Testing Workflow
+
+**User drives simulator testing unless tagged in.** When a feature is ready for simulator testing:
+
+1. Claude builds the feature and runs `build_run_sim` to deploy
+2. Claude provides testing instructions: what to test and what to expect
+3. User manually tests in the simulator
+4. User reports back results (screenshots optional)
+5. Claude only uses simulator automation tools if explicitly asked to debug something specific
+
+This keeps the user in control of manual QA while Claude focuses on building.
+
 # Best Practices
 
 ## SwiftUI & State Management

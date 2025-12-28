@@ -38,6 +38,8 @@ struct BabyCardView: View {
     let baby: Baby
     let isParent: Bool
 
+    @State private var showingSettings = false
+
     var body: some View {
         HStack(spacing: 16) {
             // Baby avatar with status glow
@@ -78,6 +80,16 @@ struct BabyCardView: View {
         }
         .padding(.vertical, 8)
         .animation(.easeInOut(duration: 0.2), value: baby.isAvailable)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isParent {
+                showingSettings = true
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            BabySettingsView(baby: baby)
+        }
+        .accessibilityHint(isParent ? "Double tap to open settings" : "")
     }
 
     private var statusMessage: String {

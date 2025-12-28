@@ -43,39 +43,57 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 
 ## Features
 
+### Implementation Progress
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| 1. Baby Profile Creation | ✅ Done | Onboarding flow, Baby/User models, AppState |
+| 2. Availability Toggle | ✅ Done | Custom toggle, animations, status messages |
+| 3. Co-Parent Management | ✅ Done | Invite model, settings view, mock invite flow |
+| 4. Subscriber Management | ⏳ Pending | |
+| 5. Recipient Experience | ⏳ Pending | |
+| 6. Multi-Baby List View | ✅ Done | Basic list with parent/subscriber views |
+
+**Blocked items** (require Firebase):
+- Push notifications for availability changes
+- Real-time sync across devices
+- Invite link generation and redemption
+
+---
+
 ### Core Features (MVP)
 
-#### Feature 1: Baby Profile Creation
+#### Feature 1: Baby Profile Creation ✅
 **Description**: Parent creates a baby profile with name. This makes them a "parent" with full permissions.
 
 **User Story**: US-1
 
 **Acceptance Criteria**:
-- [ ] Parent can create one baby profile
-- [ ] Baby has a name (editable later)
-- [ ] Creator automatically gets parent role (can toggle, manage subscribers)
+- [x] Parent can create one baby profile
+- [x] Baby has a name (editable later)
+- [x] Creator automatically gets parent role (can toggle, manage subscribers)
 
-#### Feature 2: Availability Toggle
+#### Feature 2: Availability Toggle ✅
 **Description**: Big, obvious button to broadcast "baby is available now" or turn off the signal.
 
 **User Story**: US-2
 
 **Acceptance Criteria**:
-- [ ] Parents see interactive toggle on baby card
-- [ ] Toggle sends push notification to all subscribers when turned ON
-- [ ] Toggle sends notification when turned OFF (optional: "office hours are over")
-- [ ] Status persists and syncs across all parent devices
+- [x] Parents see interactive toggle on baby card
+- [ ] Toggle sends push notification to all subscribers when turned ON *(requires Firebase)*
+- [ ] Toggle sends notification when turned OFF *(requires Firebase)*
+- [ ] Status persists and syncs across all parent devices *(requires Firebase)*
 
-#### Feature 3: Co-Parent Management
+#### Feature 3: Co-Parent Management ✅
 **Description**: Invite another parent (partner) who gets full toggle and management permissions.
 
 **User Story**: US-3
 
 **Acceptance Criteria**:
-- [ ] Parent can invite co-parent from baby settings
-- [ ] Co-parent gets full permissions (toggle, add/remove subscribers, delete baby)
-- [ ] Co-parents see the same baby card with interactive toggle
-- [ ] Can add co-parent after initial setup (not just during onboarding)
+- [x] Parent can invite co-parent from baby settings
+- [x] Co-parent gets full permissions (toggle, add/remove subscribers, delete baby)
+- [x] Co-parents see the same baby card with interactive toggle
+- [x] Can add co-parent after initial setup (not just during onboarding)
 
 #### Feature 4: Subscriber Management
 **Description**: Invite family members as subscribers (read-only recipients of availability status).
@@ -100,16 +118,16 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 - [ ] Recipients receive push notification when status changes to "available"
 - [ ] Recipients can unsubscribe from baby settings
 
-#### Feature 6: Multi-Baby List View
+#### Feature 6: Multi-Baby List View ✅
 **Description**: Main screen shows all babies user is connected to (as parent or recipient).
 
 **User Story**: US-9
 
 **Acceptance Criteria**:
-- [ ] Babies displayed as vertical list (not grid)
-- [ ] Parent role: baby card shows interactive toggle
-- [ ] Recipient role: baby card shows read-only status
-- [ ] Empty state when no babies connected yet
+- [x] Babies displayed as vertical list (not grid)
+- [x] Parent role: baby card shows interactive toggle
+- [x] Recipient role: baby card shows read-only status
+- [x] Empty state when no babies connected yet
 
 ### Future Features
 
