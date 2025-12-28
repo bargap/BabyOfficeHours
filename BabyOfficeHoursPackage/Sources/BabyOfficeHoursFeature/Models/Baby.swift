@@ -29,4 +29,19 @@ public final class Baby: Identifiable {
         self.isAvailable = isAvailable
         self.lastStatusChange = lastStatusChange
     }
+
+    // MARK: - Availability Toggle
+
+    /// Toggles the baby's availability status
+    public func toggleAvailability() {
+        isAvailable.toggle()
+        lastStatusChange = Date()
+    }
+
+    /// Sets the baby's availability to a specific state
+    public func setAvailability(_ available: Bool) {
+        guard isAvailable != available else { return }
+        isAvailable = available
+        lastStatusChange = Date()
+    }
 }
