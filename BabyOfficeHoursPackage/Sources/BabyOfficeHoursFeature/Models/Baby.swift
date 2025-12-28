@@ -83,4 +83,38 @@ public final class Baby: Identifiable {
     public var coParentCount: Int {
         parents.count - 1
     }
+
+    // MARK: - Subscriber Management
+
+    /// Adds a subscriber to this baby
+    /// - Parameter userId: The user ID to add as a subscriber
+    /// - Returns: True if the user was added, false if already a subscriber or is a parent
+    @discardableResult
+    public func addSubscriber(_ userId: UUID) -> Bool {
+        // Parents can't be subscribers
+        guard !parents.contains(userId) else { return false }
+        guard !subscribers.contains(userId) else { return false }
+        subscribers.append(userId)
+        return true
+    }
+
+    /// Removes a subscriber from this baby
+    /// - Parameter userId: The user ID to remove
+    /// - Returns: True if the user was removed, false if not a subscriber
+    @discardableResult
+    public func removeSubscriber(_ userId: UUID) -> Bool {
+        guard let index = subscribers.firstIndex(of: userId) else { return false }
+        subscribers.remove(at: index)
+        return true
+    }
+
+    /// Checks if a user is a subscriber of this baby
+    public func isSubscriber(_ userId: UUID) -> Bool {
+        subscribers.contains(userId)
+    }
+
+    /// Returns the number of subscribers
+    public var subscriberCount: Int {
+        subscribers.count
+    }
 }
