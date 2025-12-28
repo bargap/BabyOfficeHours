@@ -44,4 +44,43 @@ public final class Baby: Identifiable {
         isAvailable = available
         lastStatusChange = Date()
     }
+
+    // MARK: - Co-Parent Management
+
+    /// Adds a co-parent to this baby
+    /// - Parameter userId: The user ID to add as a parent
+    /// - Returns: True if the user was added, false if already a parent
+    @discardableResult
+    public func addParent(_ userId: UUID) -> Bool {
+        guard !parents.contains(userId) else { return false }
+        parents.append(userId)
+        return true
+    }
+
+    /// Removes a co-parent from this baby
+    /// - Parameter userId: The user ID to remove
+    /// - Returns: True if the user was removed, false if not a parent or is the creator
+    @discardableResult
+    public func removeParent(_ userId: UUID) -> Bool {
+        // Cannot remove the creator
+        guard userId != createdBy else { return false }
+        guard let index = parents.firstIndex(of: userId) else { return false }
+        parents.remove(at: index)
+        return true
+    }
+
+    /// Checks if a user is a parent of this baby
+    public func isParent(_ userId: UUID) -> Bool {
+        parents.contains(userId)
+    }
+
+    /// Checks if a user is the creator of this baby
+    public func isCreator(_ userId: UUID) -> Bool {
+        createdBy == userId
+    }
+
+    /// Returns the number of co-parents (excluding creator)
+    public var coParentCount: Int {
+        parents.count - 1
+    }
 }
