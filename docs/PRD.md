@@ -51,7 +51,7 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 | 2. Availability Toggle | ✅ Done | Custom toggle, animations, status messages |
 | 3. Co-Parent Management | ✅ Done | Invite model, settings view, mock invite flow |
 | 4. Subscriber Management | ✅ Done | Subscriber invites, list view, remove functionality |
-| 5. Recipient Experience | ⏳ Pending | |
+| 5. Recipient Experience | ✅ Done | Join flow, name entry, user registry |
 | 6. Multi-Baby List View | ✅ Done | Basic list with parent/subscriber views |
 
 **Blocked items** (require Firebase):
@@ -106,17 +106,17 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 - [x] Parent can see list of current subscribers
 - [x] Parent can remove subscribers
 
-#### Feature 5: Recipient Experience
+#### Feature 5: Recipient Experience ✅
 **Description**: Family members join via invite, see status, and receive notifications.
 
 **User Story**: US-6, US-7, US-8
 
 **Acceptance Criteria**:
-- [ ] Tapping invite link opens app with "Join [Baby Name]'s office hours?" prompt
-- [ ] Accepting invite adds baby to recipient's list
-- [ ] Recipients see baby card with read-only status indicator (no toggle)
-- [ ] Recipients receive push notification when status changes to "available"
-- [ ] Recipients can unsubscribe from baby settings
+- [x] Tapping invite link opens app with "Join [Baby Name]'s office hours?" prompt
+- [x] Accepting invite adds baby to recipient's list
+- [x] Recipients see baby card with read-only status indicator (no toggle)
+- [ ] Recipients receive push notification when status changes to "available" *(requires Firebase)*
+- [ ] Recipients can unsubscribe from baby settings *(not yet implemented)*
 
 #### Feature 6: Multi-Baby List View ✅
 **Description**: Main screen shows all babies user is connected to (as parent or recipient).
