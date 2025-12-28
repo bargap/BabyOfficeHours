@@ -172,6 +172,8 @@ struct BabySettingsView: View {
 
 /// Row displaying a co-parent with optional remove action
 struct CoParentRow: View {
+    @Environment(AppState.self) private var appState
+
     let parentId: UUID
     let isCreator: Bool
     let isCurrentUser: Bool
@@ -217,13 +219,15 @@ struct CoParentRow: View {
         if isCurrentUser {
             return "You"
         } else {
-            return "Co-Parent"
+            return appState.displayName(for: parentId)
         }
     }
 }
 
 /// Row displaying a subscriber with remove action
 struct SubscriberRow: View {
+    @Environment(AppState.self) private var appState
+
     let subscriberId: UUID
     let onRemove: () -> Void
 
@@ -237,7 +241,7 @@ struct SubscriberRow: View {
                         .foregroundStyle(.blue)
                 }
 
-            Text("Family Member")
+            Text(appState.displayName(for: subscriberId))
                 .font(.body)
 
             Spacer()

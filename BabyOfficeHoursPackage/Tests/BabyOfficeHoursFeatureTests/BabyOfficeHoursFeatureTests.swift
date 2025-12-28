@@ -526,3 +526,139 @@ struct AppStateSubscriberTests {
         #expect(baby.subscribers.contains(mockSubscriber.id))
     }
 }
+
+// MARK: - User Model Tests
+
+@Suite("User Model")
+struct UserTests {
+
+    @Test("User initializes with name")
+    @MainActor
+    func userInitializesWithName() {
+        let user = User(name: "John")
+
+        #expect(user.name == "John")
+        #expect(user.displayName == "John")
+    }
+
+    @Test("User displayName falls back to Unknown")
+    @MainActor
+    func userDisplayNameFallsBack() {
+        let user = User()
+
+        #expect(user.name == nil)
+        #expect(user.displayName == "Unknown")
+    }
+}
+
+// MARK: - AppState User Registry Tests
+
+@Suite("AppState User Registry")
+struct AppStateUserRegistryTests {
+
+    @Test("Register user adds to known users")
+    @MainActor
+    func registerUserAddsToKnownUsers() {
+        let appState = AppState()
+        let user = User(name: "Grandma")
+
+        appState.registerUser(user)
+
+        #expect(appState.knownUsers[user.id] != nil)
+        #expect(appState.knownUsers[user.id]?.name == "Grandma")
+    }
+
+    @Test("displayName returns You for current user")
+    @MainActor
+    func displayNameReturnsYouForCurrentUser() {
+        let appState = AppState()
+
+        #expect(appState.displayName(for: appState.currentUser.id) == "You")
+    }
+
+    @Test("displayName returns name for known user")
+    @MainActor
+    func displayNameReturnsNameForKnownUser() {
+        let appState = AppState()
+        let user = User(name: "Grandpa")
+        appState.registerUser(user)
+
+        #expect(appState.displayName(for: user.id) == "Grandpa")
+    }
+
+    @Test("displayName returns Unknown for unknown user")
+    @MainActor
+    func displayNameReturnsUnknownForUnknownUser() {
+        let appState = AppState()
+        let randomId = UUID()
+
+        #expect(appState.displayName(for: randomId) == "Unknown")
+    }
+
+    @Test("Simulate invites register users with names")
+    @MainActor
+    func simulateInvitesRegisterUsersWithNames() {
+        let appState = AppState()
+        let baby = appState.createBaby(name: "Emma")
+
+        let coParent = appState.simulateCoParentInviteAccepted(for: baby)
+        let subscriber = appState.simulateSubscriberInviteAccepted(for: baby)
+
+        #expect(appState.knownUsers[coParent.id] != nil)
+        #expect(appState.knownUsers[subscriber.id] != nil)
+        #expect(coParent.name != nil)
+        #expect(subscriber.name != nil)
+    }
+}
+
+// MARK: - AppState Join Flow Tests
+
+@Suite("AppState Join Flow")
+struct AppStateJoinFlowTests {
+
+    @Test("Join baby as subscriber")
+    @MainActor
+    func joinBabyAsSubscriber() {
+        let appState = AppState()
+        let creatorId = UUID()
+        let baby = Baby(name: "Emma", createdBy: creatorId)
+        appState.babies.append(baby)
+
+        appState.joinBaby(baby, as: .subscriber, userName: "Grandma")
+
+        #expect(appState.currentUser.name == "Grandma")
+        #expect(baby.subscribers.contains(appState.currentUser.id))
+        #expect(appState.currentUser.babies.contains(baby.id))
+        #expect(appState.hasCompletedOnboarding == true)
+    }
+
+    @Test("Join baby as co-parent")
+    @MainActor
+    func joinBabyAsCoParent() {
+        let appState = AppState()
+        let creatorId = UUID()
+        let baby = Baby(name: "Emma", createdBy: creatorId)
+        appState.babies.append(baby)
+
+        appState.joinBaby(baby, as: .parent, userName: "Partner")
+
+        #expect(appState.currentUser.name == "Partner")
+        #expect(baby.parents.contains(appState.currentUser.id))
+        #expect(appState.currentUser.babies.contains(baby.id))
+        #expect(appState.hasCompletedOnboarding == true)
+    }
+
+    @Test("Join clears pending invite")
+    @MainActor
+    func joinClearsPendingInvite() {
+        let appState = AppState()
+        let baby = Baby(name: "Emma", createdBy: UUID())
+        let invite = Invite(babyId: baby.id, role: .subscriber, createdBy: UUID())
+        appState.babies.append(baby)
+        appState.pendingJoinInvite = invite
+
+        appState.joinBaby(baby, as: .subscriber, userName: "Aunt")
+
+        #expect(appState.pendingJoinInvite == nil)
+    }
+}
