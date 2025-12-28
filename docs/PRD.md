@@ -50,7 +50,7 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 | 1. Baby Profile Creation | ✅ Done | Onboarding flow, Baby/User models, AppState |
 | 2. Availability Toggle | ✅ Done | Custom toggle, animations, status messages |
 | 3. Co-Parent Management | ✅ Done | Invite model, settings view, mock invite flow |
-| 4. Subscriber Management | ⏳ Pending | |
+| 4. Subscriber Management | ✅ Done | Subscriber invites, list view, remove functionality |
 | 5. Recipient Experience | ⏳ Pending | |
 | 6. Multi-Baby List View | ✅ Done | Basic list with parent/subscriber views |
 
@@ -95,16 +95,16 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 - [x] Co-parents see the same baby card with interactive toggle
 - [x] Can add co-parent after initial setup (not just during onboarding)
 
-#### Feature 4: Subscriber Management
+#### Feature 4: Subscriber Management ✅
 **Description**: Invite family members as subscribers (read-only recipients of availability status).
 
 **User Story**: US-4, US-5
 
 **Acceptance Criteria**:
-- [ ] Parent can generate shareable invite link
-- [ ] Invite opens as iMessage with cute preview card
-- [ ] Parent can see list of current subscribers
-- [ ] Parent can remove subscribers
+- [x] Parent can generate shareable invite link
+- [ ] Invite opens as iMessage with cute preview card *(requires Universal Links)*
+- [x] Parent can see list of current subscribers
+- [x] Parent can remove subscribers
 
 #### Feature 5: Recipient Experience
 **Description**: Family members join via invite, see status, and receive notifications.

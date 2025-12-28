@@ -136,13 +136,53 @@ public final class AppState {
         return baby.removeParent(userId)
     }
 
+    // MARK: - Subscriber Management
+
+    /// Creates a subscriber invite for a baby
+    /// - Parameters:
+    ///   - baby: The baby to invite a subscriber for
+    ///   - expiresIn: Optional time interval for expiration (default: 7 days)
+    /// - Returns: The created invite, or nil if user is not a parent
+    public func createSubscriberInvite(for baby: Baby, expiresIn: TimeInterval? = 7 * 24 * 60 * 60) -> Invite? {
+        guard isParent(of: baby) else { return nil }
+
+        let expiresAt = expiresIn.map { Date().addingTimeInterval($0) }
+        let invite = Invite(
+            babyId: baby.id,
+            role: .subscriber,
+            createdBy: currentUser.id,
+            expiresAt: expiresAt
+        )
+        pendingInvites.append(invite)
+        return invite
+    }
+
+    /// Removes a subscriber from a baby
+    /// - Parameters:
+    ///   - userId: The user ID to remove
+    ///   - baby: The baby to remove the subscriber from
+    /// - Returns: True if the subscriber was removed
+    @discardableResult
+    public func removeSubscriber(_ userId: UUID, from baby: Baby) -> Bool {
+        guard isParent(of: baby) else { return false }
+        return baby.removeSubscriber(userId)
+    }
+
     // MARK: - Mock Data for Testing
 
-    /// Simulates accepting an invite (for UI testing without Firebase)
+    /// Simulates accepting a co-parent invite (for UI testing without Firebase)
     /// Creates a mock co-parent user and adds them to the baby
-    public func simulateInviteAccepted(for baby: Baby) -> User {
+    public func simulateCoParentInviteAccepted(for baby: Baby) -> User {
         let mockCoParent = User(id: UUID())
         baby.addParent(mockCoParent.id)
         return mockCoParent
+    }
+
+    /// Simulates accepting a subscriber invite (for UI testing without Firebase)
+    /// Creates a mock subscriber user and adds them to the baby
+    public func simulateSubscriberInviteAccepted(for baby: Baby) -> User {
+        let mockSubscriber = User(id: UUID())
+        baby.addSubscriber(mockSubscriber.id)
+        return mockSubscriber
     }
 }

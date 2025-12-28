@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Settings screen for managing a baby's profile and co-parents
+/// Settings screen for managing a baby's profile, co-parents, and subscribers
 struct BabySettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
@@ -8,7 +8,8 @@ struct BabySettingsView: View {
     let baby: Baby
 
     @State private var editedName: String = ""
-    @State private var showingInviteSheet = false
+    @State private var showingCoParentInvite = false
+    @State private var showingSubscriberInvite = false
     @State private var showingDeleteConfirmation = false
 
     var body: some View {
@@ -16,6 +17,7 @@ struct BabySettingsView: View {
             List {
                 nameSection
                 coParentsSection
+                subscribersSection
                 if appState.isCreator(of: baby) {
                     dangerZoneSection
                 }
@@ -29,8 +31,11 @@ struct BabySettingsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingInviteSheet) {
+            .sheet(isPresented: $showingCoParentInvite) {
                 InviteCoParentView(baby: baby)
+            }
+            .sheet(isPresented: $showingSubscriberInvite) {
+                InviteSubscriberView(baby: baby)
             }
             .confirmationDialog(
                 "Delete Baby Profile",
@@ -69,6 +74,7 @@ struct BabySettingsView: View {
                 CoParentRow(
                     parentId: parentId,
                     isCreator: parentId == baby.createdBy,
+                    isCurrentUser: parentId == appState.currentUser.id,
                     canRemove: canRemoveCoParent(parentId),
                     onRemove: { removeCoParent(parentId) }
                 )
@@ -76,7 +82,7 @@ struct BabySettingsView: View {
 
             // Invite button
             Button {
-                showingInviteSheet = true
+                showingCoParentInvite = true
             } label: {
                 Label("Invite Co-Parent", systemImage: "person.badge.plus")
             }
@@ -84,6 +90,39 @@ struct BabySettingsView: View {
             Text("Parents")
         } footer: {
             Text("Co-parents have full permissions: toggle availability, manage subscribers, and delete the baby profile.")
+        }
+    }
+
+    private var subscribersSection: some View {
+        Section {
+            // List of current subscribers
+            if baby.subscribers.isEmpty {
+                Text("No subscribers yet")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(baby.subscribers, id: \.self) { subscriberId in
+                    SubscriberRow(
+                        subscriberId: subscriberId,
+                        onRemove: { removeSubscriber(subscriberId) }
+                    )
+                }
+            }
+
+            // Invite button
+            Button {
+                showingSubscriberInvite = true
+            } label: {
+                Label("Invite Family Member", systemImage: "person.2.badge.plus")
+            }
+        } header: {
+            HStack {
+                Text("Subscribers")
+                Spacer()
+                Text("\(baby.subscriberCount)")
+                    .foregroundStyle(.secondary)
+            }
+        } footer: {
+            Text("Subscribers can see when \(baby.name) is available but cannot toggle the status.")
         }
     }
 
@@ -116,6 +155,10 @@ struct BabySettingsView: View {
         appState.removeCoParent(parentId, from: baby)
     }
 
+    private func removeSubscriber(_ subscriberId: UUID) {
+        appState.removeSubscriber(subscriberId, from: baby)
+    }
+
     private func deleteBaby() {
         if let index = appState.babies.firstIndex(where: { $0.id == baby.id }) {
             appState.babies.remove(at: index)
@@ -131,6 +174,7 @@ struct BabySettingsView: View {
 struct CoParentRow: View {
     let parentId: UUID
     let isCreator: Bool
+    let isCurrentUser: Bool
     let canRemove: Bool
     let onRemove: () -> Void
 
@@ -170,12 +214,41 @@ struct CoParentRow: View {
     }
 
     private var displayName: String {
-        // In production, this would look up the user's name
-        // For now, show a placeholder based on role
-        if isCreator {
+        if isCurrentUser {
             return "You"
         } else {
             return "Co-Parent"
+        }
+    }
+}
+
+/// Row displaying a subscriber with remove action
+struct SubscriberRow: View {
+    let subscriberId: UUID
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack {
+            Circle()
+                .fill(.blue.opacity(0.1))
+                .frame(width: 36, height: 36)
+                .overlay {
+                    Image(systemName: "person.fill")
+                        .foregroundStyle(.blue)
+                }
+
+            Text("Family Member")
+                .font(.body)
+
+            Spacer()
+
+            Button(role: .destructive) {
+                onRemove()
+            } label: {
+                Image(systemName: "minus.circle.fill")
+                    .foregroundStyle(.red)
+            }
+            .buttonStyle(.plain)
         }
     }
 }
@@ -192,7 +265,16 @@ struct CoParentRow: View {
 #Preview("With Co-Parent") {
     let appState = AppState()
     let baby = appState.createBaby(name: "Emma")
-    _ = appState.simulateInviteAccepted(for: baby)
+    _ = appState.simulateCoParentInviteAccepted(for: baby)
+    return BabySettingsView(baby: baby)
+        .environment(appState)
+}
+
+#Preview("With Subscribers") {
+    let appState = AppState()
+    let baby = appState.createBaby(name: "Emma")
+    _ = appState.simulateSubscriberInviteAccepted(for: baby)
+    _ = appState.simulateSubscriberInviteAccepted(for: baby)
     return BabySettingsView(baby: baby)
         .environment(appState)
 }

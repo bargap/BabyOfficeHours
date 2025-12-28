@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// View for creating and sharing a co-parent invite
-struct InviteCoParentView: View {
+/// View for creating and sharing a subscriber (family member) invite
+struct InviteSubscriberView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
 
@@ -20,7 +20,7 @@ struct InviteCoParentView: View {
                 actionButtons
             }
             .padding()
-            .navigationTitle("Invite Co-Parent")
+            .navigationTitle("Invite Family")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -42,7 +42,7 @@ struct InviteCoParentView: View {
                     dismiss()
                 }
             } message: {
-                Text("A co-parent has been added to \(baby.name)'s profile. They can now toggle availability from their device.")
+                Text("A family member has been added to \(baby.name)'s subscribers. They'll see when \(baby.name) is available!")
             }
         }
     }
@@ -51,15 +51,15 @@ struct InviteCoParentView: View {
 
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Image(systemName: "person.badge.plus")
+            Image(systemName: "person.2.badge.plus")
                 .font(.system(size: 48))
                 .foregroundStyle(.tint)
 
-            Text("Invite a Co-Parent")
+            Text("Invite Family Member")
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("Share this invite with your partner so they can also toggle \(baby.name)'s availability.")
+            Text("Share this invite with grandparents, aunts, uncles, or anyone who wants to know when \(baby.name) is available for FaceTime.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -85,6 +85,20 @@ struct InviteCoParentView: View {
                                 .fill(.quaternary)
                         )
                 }
+
+                // Role badge
+                HStack {
+                    Image(systemName: "eye")
+                    Text("View-only access")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(.blue.opacity(0.1))
+                )
 
                 // Expiration info
                 if let expiresAt = invite.expiresAt {
@@ -150,17 +164,17 @@ struct InviteCoParentView: View {
 
     private func createInviteIfNeeded() {
         if currentInvite == nil {
-            currentInvite = appState.createCoParentInvite(for: baby)
+            currentInvite = appState.createSubscriberInvite(for: baby)
         }
     }
 
     private func inviteMessage(for invite: Invite) -> String {
         """
-        Join me as a co-parent for \(baby.name) on Baby Office Hours!
+        Want to know when \(baby.name) is available for FaceTime? Join Baby Office Hours!
 
-        Tap this link to accept: \(invite.shareableCode)
+        Tap this link to subscribe: \(invite.shareableCode)
 
-        You'll be able to toggle \(baby.name)'s availability for video calls.
+        You'll get notified whenever \(baby.name) is ready for video calls.
         """
     }
 
@@ -170,7 +184,7 @@ struct InviteCoParentView: View {
     }
 
     private func simulateAcceptance() {
-        _ = appState.simulateCoParentInviteAccepted(for: baby)
+        _ = appState.simulateSubscriberInviteAccepted(for: baby)
         if let invite = currentInvite {
             appState.cancelInvite(invite)
         }
@@ -178,22 +192,11 @@ struct InviteCoParentView: View {
     }
 }
 
-/// UIKit share sheet wrapper
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
 // MARK: - Previews
 
-#Preview("Invite Co-Parent") {
+#Preview("Invite Subscriber") {
     let appState = AppState()
     let baby = appState.createBaby(name: "Emma")
-    return InviteCoParentView(baby: baby)
+    return InviteSubscriberView(baby: baby)
         .environment(appState)
 }
