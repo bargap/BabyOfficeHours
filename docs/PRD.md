@@ -53,11 +53,12 @@ Remove friction from spontaneous video calls: parents broadcast availability wit
 | 4. Subscriber Management | ✅ Done | Subscriber invites, list view, remove functionality |
 | 5. Recipient Experience | ✅ Done | Join flow, name entry, user registry |
 | 6. Multi-Baby List View | ✅ Done | Basic list with parent/subscriber views |
+| 7. Firebase Integration | ✅ Done | Anonymous auth, Firestore sync |
 
-**Blocked items** (require Firebase):
-- Push notifications for availability changes
-- Real-time sync across devices
-- Invite link generation and redemption
+**Remaining items:**
+- Push notifications for availability changes (requires APNs setup)
+- Real-time sync across devices (listeners implemented, needs testing)
+- Invite link generation and redemption (Universal Links setup)
 
 ---
 
