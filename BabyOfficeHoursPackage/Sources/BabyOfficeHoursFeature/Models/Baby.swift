@@ -117,4 +117,54 @@ public final class Baby: Identifiable {
     public var subscriberCount: Int {
         subscribers.count
     }
+
+    // MARK: - Firestore Conversion
+
+    /// Converts the baby to a Firestore-compatible dictionary
+    public func toFirestore() -> [String: Any] {
+        let data: [String: Any] = [
+            "name": name,
+            "createdBy": createdBy.uuidString,
+            "parents": parents.map { $0.uuidString },
+            "subscribers": subscribers.map { $0.uuidString },
+            "isAvailable": isAvailable,
+            "lastStatusChange": lastStatusChange
+        ]
+        return data
+    }
+
+    /// Creates a Baby from Firestore data
+    public static func fromFirestore(_ data: [String: Any], id: String) -> Baby? {
+        guard let uuid = UUID(uuidString: id),
+              let name = data["name"] as? String,
+              let createdByString = data["createdBy"] as? String,
+              let createdBy = UUID(uuidString: createdByString) else {
+            return nil
+        }
+
+        let parentStrings = data["parents"] as? [String] ?? []
+        let parents = parentStrings.compactMap { UUID(uuidString: $0) }
+
+        let subscriberStrings = data["subscribers"] as? [String] ?? []
+        let subscribers = subscriberStrings.compactMap { UUID(uuidString: $0) }
+
+        let isAvailable = data["isAvailable"] as? Bool ?? false
+
+        let lastStatusChange: Date
+        if let timestamp = data["lastStatusChange"] as? Date {
+            lastStatusChange = timestamp
+        } else {
+            lastStatusChange = Date()
+        }
+
+        return Baby(
+            id: uuid,
+            name: name,
+            createdBy: createdBy,
+            parents: parents,
+            subscribers: subscribers,
+            isAvailable: isAvailable,
+            lastStatusChange: lastStatusChange
+        )
+    }
 }

@@ -22,6 +22,15 @@ public final class AppState {
     /// Pending invite to join (from deep link)
     public var pendingJoinInvite: Invite?
 
+    /// Whether the app is loading data from Firebase
+    public var isLoading: Bool = false
+
+    /// Error message if something goes wrong
+    public var errorMessage: String?
+
+    /// Firebase user ID (different from local User.id)
+    public var firebaseUserId: String?
+
     public init(
         currentUser: User = User(),
         babies: [Baby] = [],
@@ -36,6 +45,74 @@ public final class AppState {
         self.knownUsers = knownUsers
         self.hasCompletedOnboarding = hasCompletedOnboarding
         self.pendingJoinInvite = pendingJoinInvite
+    }
+
+    // MARK: - Firebase Integration
+
+    /// Signs in anonymously and loads user data
+    public func initialize() async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            // Sign in anonymously
+            print("[Firebase] Signing in anonymously...")
+            let userId = try await FirebaseService.shared.signInAnonymously()
+            firebaseUserId = userId
+            print("[Firebase] Signed in with ID: \(userId)")
+
+            // Try to load existing user data
+            if let existingUser = try await FirebaseService.shared.fetchUser(id: userId) {
+                // User exists, load their babies
+                print("[Firebase] Found existing user")
+                currentUser = existingUser
+                let fetchedBabies = try await FirebaseService.shared.fetchBabies(for: userId)
+                babies = fetchedBabies
+                hasCompletedOnboarding = !babies.isEmpty
+            } else {
+                // New user, create user document with Firebase UID as the ID
+                print("[Firebase] Creating new user...")
+                currentUser = User(id: UUID(uuidString: userId) ?? UUID())
+                try await FirebaseService.shared.saveUser(currentUser)
+                print("[Firebase] User saved")
+            }
+        } catch {
+            print("[Firebase] Error: \(error)")
+            errorMessage = "Failed to connect: \(error.localizedDescription)"
+        }
+
+        isLoading = false
+    }
+
+    /// Syncs a baby to Firestore after creation or update
+    public func syncBabyToFirestore(_ baby: Baby) async {
+        guard firebaseUserId != nil else {
+            print("[Firebase] No Firebase user ID, skipping sync")
+            return
+        }
+
+        do {
+            print("[Firebase] Saving baby: \(baby.name)...")
+            try await FirebaseService.shared.createBaby(baby)
+            print("[Firebase] Baby saved successfully")
+        } catch {
+            print("[Firebase] Error saving baby: \(error)")
+            errorMessage = "Failed to save: \(error.localizedDescription)"
+        }
+    }
+
+    /// Updates availability status in Firestore
+    public func syncAvailabilityToFirestore(baby: Baby) async {
+        guard firebaseUserId != nil else { return }
+
+        do {
+            try await FirebaseService.shared.updateAvailability(
+                babyId: baby.id,
+                isAvailable: baby.isAvailable
+            )
+        } catch {
+            errorMessage = "Failed to update status: \(error.localizedDescription)"
+        }
     }
 
     /// Gets a known user by ID
@@ -59,10 +136,24 @@ public final class AppState {
 
     /// Creates a new baby profile with the current user as parent
     public func createBaby(name: String) -> Baby {
-        let baby = Baby(name: name, createdBy: currentUser.id)
+        // Use Firebase UID for createdBy if available, otherwise use local UUID
+        let creatorId: UUID
+        if let firebaseId = firebaseUserId, let uuid = UUID(uuidString: firebaseId) {
+            creatorId = uuid
+        } else {
+            creatorId = currentUser.id
+        }
+
+        let baby = Baby(name: name, createdBy: creatorId)
         babies.append(baby)
         currentUser.babies.append(baby.id)
         hasCompletedOnboarding = true
+
+        // Sync to Firebase in background
+        Task {
+            await syncBabyToFirestore(baby)
+        }
+
         return baby
     }
 

@@ -25,4 +25,38 @@ public final class User: Identifiable {
     public var displayName: String {
         name ?? "Unknown"
     }
+
+    // MARK: - Firestore Conversion
+
+    /// Converts the user to a Firestore-compatible dictionary
+    public func toFirestore() -> [String: Any] {
+        var data: [String: Any] = [
+            "babies": babies.map { $0.uuidString }
+        ]
+        if let name {
+            data["name"] = name
+        }
+        if let deviceToken {
+            data["deviceToken"] = deviceToken
+        }
+        return data
+    }
+
+    /// Creates a User from Firestore data
+    public static func fromFirestore(_ data: [String: Any], id: String) -> User? {
+        guard let uuid = UUID(uuidString: id) else { return nil }
+
+        let name = data["name"] as? String
+        let deviceToken = data["deviceToken"] as? String
+
+        let babyStrings = data["babies"] as? [String] ?? []
+        let babies = babyStrings.compactMap { UUID(uuidString: $0) }
+
+        return User(
+            id: uuid,
+            name: name,
+            deviceToken: deviceToken,
+            babies: babies
+        )
+    }
 }
