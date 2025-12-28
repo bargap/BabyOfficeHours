@@ -13,30 +13,18 @@ A modern iOS app built with Swift 6 and SwiftUI that removes friction from spont
 - **Backend**: Firebase (Firestore + Cloud Messaging)
 - **Architecture**: Workspace + SPM package
 
-## AI Assistant Rules Files
+## Development with Claude Code
 
-This template includes **opinionated rules files** for popular AI coding assistants. These files establish coding standards, architectural patterns, and best practices for modern iOS development using the latest APIs and Swift features.
+This project includes `CLAUDE.md` - an opinionated rules file for Claude Code that establishes coding standards, architectural patterns, and best practices for modern iOS development.
 
-### Included Rules Files
-- **Claude Code**: `CLAUDE.md` - Claude Code rules
-- **Cursor**: `.cursor/*.mdc` - Cursor-specific rules
-- **GitHub Copilot**: `.github/copilot-instructions.md` - GitHub Copilot rules
+**Key principles**:
+- **No ViewModels**: Pure SwiftUI state management with @Observable
+- **Swift 6+ Concurrency**: Modern async/await patterns
+- **iOS 17+ APIs**: Leveraging the latest SwiftUI features
+- **Swift Testing**: Modern testing framework with @Test macros
+- **Performance**: @Observable over @Published for better performance
 
-### Customization Options
-These rules files are **starting points** - feel free to:
-- ✅ **Edit them** to match your team's coding standards
-- ✅ **Delete them** if you prefer different approaches
-- ✅ **Add your own** rules for other AI tools
-- ✅ **Update them** as new iOS APIs become available
-
-### What Makes These Rules Opinionated
-- **No ViewModels**: Embraces pure SwiftUI state management patterns
-- **Swift 6+ Concurrency**: Enforces modern async/await over legacy patterns
-- **Latest APIs**: Recommends iOS 18+ features with optional iOS 26 guidelines
-- **Testing First**: Promotes Swift Testing framework over XCTest
-- **Performance Focus**: Emphasizes @Observable over @Published for better performance
-
-**Note for AI assistants**: You MUST read the relevant rules files before making changes to ensure consistency with project standards.
+See `CLAUDE.md` for complete architecture guidelines.
 
 ## Project Architecture
 
